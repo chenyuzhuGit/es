@@ -2,6 +2,8 @@ package com.elasticsearch.root.dao;
 
 import org.elasticsearch.client.RestHighLevelClient;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * dao基类
  * 
@@ -9,6 +11,11 @@ import org.elasticsearch.client.RestHighLevelClient;
  *
  */
 public interface BaseDaoService {
+	/**
+	 * json字符串、对象转换工具
+	 */
+	final ObjectMapper mapper = new ObjectMapper();
+
 	/**
 	 * 获取数据库操作对象
 	 * 
