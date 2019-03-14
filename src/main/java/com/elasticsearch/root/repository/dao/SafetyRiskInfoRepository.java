@@ -1,13 +1,16 @@
 package com.elasticsearch.root.repository.dao;
 
-import org.springframework.data.repository.NoRepositoryBean;
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
-import com.elasticsearch.root.repository.entity.SafetyRiskInfo;
+import com.elasticsearch.root.entity.SafetyRiskInfo;
+import com.elasticsearch.root.repository.dao.custom.Test;
 
-//@NoRepositoryBean
-@Repository
-public interface SafetyRiskInfoRepository extends PagingAndSortingRepository<SafetyRiskInfo, Long> {
+/**
+ * 隐患表的DSL接口
+ * 注：无需对该接口实现
+ * @author Administrator
+ *
+ */
+public interface SafetyRiskInfoRepository extends ElasticsearchRepository<SafetyRiskInfo, String>, Test {
 
 }

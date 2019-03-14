@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao.service;
+package com.elasticsearch.root.highlevel.dao.service;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,8 +29,8 @@ import org.elasticsearch.index.query.TypeQueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
 import org.springframework.stereotype.Component;
 
-import com.elasticsearch.root.dao.DataSearchService;
 import com.elasticsearch.root.enums.BoolQueryType;
+import com.elasticsearch.root.highlevel.dao.DataSearchService;
 
 /**
  * 数据查询接口

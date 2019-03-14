@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao.service;
+package com.elasticsearch.root.highlevel.dao.service;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +27,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
 import org.springframework.stereotype.Component;
 
-import com.elasticsearch.root.dao.DataOperationService;
+import com.elasticsearch.root.highlevel.dao.DataOperationService;
 
 /**
  * 数据操作接口

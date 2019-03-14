@@ -1,9 +1,9 @@
-package com.elasticsearch.root.dao.service;
+package com.elasticsearch.root.highlevel.dao.service;
 
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.springframework.stereotype.Component;
 
-import com.elasticsearch.root.dao.DataAggregationService;
+import com.elasticsearch.root.highlevel.dao.DataAggregationService;
 
 /**
  * 数据聚合查询接口

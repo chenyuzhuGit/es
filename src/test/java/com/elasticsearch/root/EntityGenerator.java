@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.elasticsearch.root.config.DataBaseIndex;
 import com.elasticsearch.root.config.DataBaseType;
-import com.elasticsearch.root.dao.service.BaseDaoServiceImpl;
+import com.elasticsearch.root.highlevel.dao.DataAggregationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -40,7 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest
 public class EntityGenerator {
 	@Autowired
-	private BaseDaoServiceImpl service;
+	private DataAggregationService service;
 	private RestHighLevelClient client;
 	// 索引
 	private String index = DataBaseIndex.SAFETY_RISK_INFO_INDEX;
@@ -58,7 +58,7 @@ public class EntityGenerator {
 		client = service.getClient();
 		try {
 			getElasticClient(index, type);
-//			createFile();
+			createFile();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -206,6 +206,8 @@ public class EntityGenerator {
 			writer.append("import org.springframework.data.elasticsearch.annotations.Document;");
 			writer.append(System.getProperty("line.separator"));
 			writer.append(System.getProperty("line.separator"));
+			writer.append(System.getProperty("@SuppressWarnings(\"serial\")"));
+			writer.append(System.getProperty("line.separator"));
 			writer.append("@Document(indexName = \"" + index + "\", type = \"" + type
 					+ "\", indexStoreType = \"fs\", shards = 5, replicas = 1, refreshInterval = \"-1\")");
 			writer.append(System.getProperty("line.separator"));
@@ -237,10 +239,26 @@ public class EntityGenerator {
 	 */
 	// list保存将要插入文件的字段内容
 	List<String> list = new ArrayList<String>();
+	private String prefixRecord = "";
 
 	public void combination(String fieldType, String fieldName) {
 		String finalFieldType = typeConversion(fieldType);
+		if ("nested".equals(finalFieldType)) {
+			return;
+		}
 		String finalFieldName = fieldConversion(fieldName);
+		if (fieldName.contains(".")) {
+			String prefix = fieldName.split("\\.")[0];
+			if (prefixRecord.equals("") || !prefixRecord.equals(prefix)) {
+//				list.add("	@JsonProperty(\"" + prefix + "\")");
+//				list.add("	@Field(type=FieldType.Nested)");
+				finalFieldType = "Map<String,Object>";
+				finalFieldName = prefix;
+				prefixRecord = prefix;
+			} else {
+				return;
+			}
+		}
 		if ("Date".equals(finalFieldType)) {
 			list.add("	@DateTimeFormat(pattern = \"yyyy-MM-dd\")");
 		}
@@ -291,11 +309,20 @@ public class EntityGenerator {
 	// 处理带.的字段名称
 	public String fieldConversion(String field) {
 		if (field != null && field.length() > 0) {
-			if (field.contains(".")) {
-				field = field.replace(".", "_");
-			}
+//			if (field.contains(".")) {
+//				String[] fields = field.split("\\.");
+//				field = fields[0] + toUpperCaseFirstOne(fields[1]);
+//			}
 		}
 		return field;
+	}
+
+	// 首字母转大写
+	public static String toUpperCaseFirstOne(String s) {
+		if (Character.isUpperCase(s.charAt(0)))
+			return s;
+		else
+			return (new StringBuilder()).append(Character.toUpperCase(s.charAt(0))).append(s.substring(1)).toString();
 	}
 
 }

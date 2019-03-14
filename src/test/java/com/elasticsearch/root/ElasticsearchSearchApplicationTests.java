@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.elasticsearch.root.dao.service.DataOperationServiceImpl;
+import com.elasticsearch.root.highlevel.dao.service.DataOperationServiceImpl;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

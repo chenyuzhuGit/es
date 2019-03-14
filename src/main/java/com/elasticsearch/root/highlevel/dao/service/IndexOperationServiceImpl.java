@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao.service;
+package com.elasticsearch.root.highlevel.dao.service;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.springframework.stereotype.Component;
 
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
-import com.elasticsearch.root.dao.IndexOperationService;
+import com.elasticsearch.root.highlevel.dao.IndexOperationService;
 
 /**
  * 索引操作接口

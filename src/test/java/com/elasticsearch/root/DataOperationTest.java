@@ -25,8 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.elasticsearch.root.dao.DataOperationService;
-import com.elasticsearch.root.dao.DataSearchService;
+import com.elasticsearch.root.highlevel.dao.DataOperationService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -36,7 +35,7 @@ public class DataOperationTest {
 
 	@Test
 	public void contextLoads() {
-//		createDataMethods();
+		createDataMethods();
 //		updateDataMethods();
 //		combinationBulkRequest();
 //		combinationBulkProcessor();
@@ -50,12 +49,18 @@ public class DataOperationTest {
 	 */
 	public void createDataMethods() {
 		Map<String, Object> jsonMap = new HashMap<String, Object>();
+//		jsonMap.put("user", "2kimchy");
+//		jsonMap.put("postDate", new Date());
+//		jsonMap.put("message", "2trying out Elasticsearch");
 		jsonMap.put("user", "2kimchy");
+		jsonMap.put("userMen.name", "chenyuzhu");
+		jsonMap.put("userMen.age", "20000");
+		jsonMap.put("userMen.sex", "男");
 		jsonMap.put("postDate", new Date());
 		jsonMap.put("message", "2trying out Elasticsearch");
 		IndexResponse indexResponse;
 		try {
-			indexResponse = service.addData("chenyuzhu_9", "doc", "2", jsonMap, null);
+			indexResponse = service.addData("chenyuzhu3", "doc", "1", jsonMap, null);
 			String currentIndex = indexResponse.getIndex();
 			String type = indexResponse.getType();
 			String id = indexResponse.getId();

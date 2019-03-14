@@ -1,10 +1,10 @@
-package com.elasticsearch.root.dao.service;
+package com.elasticsearch.root.highlevel.dao.service;
 
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.elasticsearch.root.config.DataBaseConnectionInfo;
-import com.elasticsearch.root.dao.BaseDaoService;
+import com.elasticsearch.root.highlevel.dao.BaseDaoService;
 import com.elasticsearch.root.tools.RestHighLevelClientFactory;
 
 /**

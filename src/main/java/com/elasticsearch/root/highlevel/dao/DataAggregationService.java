@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao;
+package com.elasticsearch.root.highlevel.dao;
 
 /**
  * 数据聚合查询接口

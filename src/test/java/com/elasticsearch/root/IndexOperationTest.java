@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.elasticsearch.root.dao.IndexOperationService;
+import com.elasticsearch.root.highlevel.dao.IndexOperationService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -22,11 +22,11 @@ public class IndexOperationTest {
 	private IndexOperationService service;
 
 	@Test
-	public void contextLoads() throws Exception {
-//		createIndexMethods();
+	public void contextLoads() {
+		try {
+			createIndexMethods();
 //		boolean exists=existsIndexMethods();
 //		System.out.println(exists);
-		try {
 //			deleteIndexMethods();
 		} catch (ElasticsearchException exception) {
 			if (exception.status() == RestStatus.NOT_FOUND) {
@@ -57,10 +57,49 @@ public class IndexOperationTest {
 						builder.startObject("properties");
 						{
 							{
+								builder.startObject("userMen");
+								{
+									builder.startObject("properties");
+									{
+
+										{
+											builder.startObject("name");
+											{
+												{
+													builder.field("type", "keyword");
+												}
+											}
+											builder.endObject();
+										}
+										{
+											builder.startObject("age");
+											{
+												{
+													builder.field("type", "text");
+												}
+											}
+											builder.endObject();
+										}
+										{
+											builder.startObject("sex");
+											{
+												{
+													builder.field("type", "text");
+												}
+											}
+											builder.endObject();
+										}
+									}
+									builder.endObject();
+
+								}
+								builder.endObject();
+							}
+							{
 								builder.startObject("user");
 								{
 									{
-										builder.field("type", "text");
+										builder.field("type", "keyword");
 									}
 								}
 								builder.endObject();
@@ -92,15 +131,15 @@ public class IndexOperationTest {
 		}
 		builder.endObject();
 		@SuppressWarnings("unused")
-		CreateIndexResponse response = service.createIndex("chenyuzhu_9", type, builder, "测试");
+		CreateIndexResponse response = service.createIndex("chenyuzhu3", type, builder, "测试");
 	}
 
 	public boolean existsIndexMethods() throws Exception {
-		return (service.existsIndex("xinweike"));
+		return (service.existsIndex("chenyuzhu"));
 	}
 
 	public void deleteIndexMethods() throws Exception {
-		AcknowledgedResponse response = service.deleteIndex("chenyuzhu_9");
+		AcknowledgedResponse response = service.deleteIndex("chenyuzhu");
 		if (response.isAcknowledged()) {
 			System.out.println("删除索引成功");
 		}

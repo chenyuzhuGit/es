@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao;
+package com.elasticsearch.root.highlevel.dao;
 
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.get.GetIndexResponse;

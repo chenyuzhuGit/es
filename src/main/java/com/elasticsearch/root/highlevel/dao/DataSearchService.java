@@ -1,4 +1,4 @@
-package com.elasticsearch.root.dao;
+package com.elasticsearch.root.highlevel.dao;
 
 import java.util.Collection;
 import java.util.List;

@@ -30,8 +30,6 @@ public class WisdomOfCiskController {
 	private SafetyRiskInfoService safetyRiskInfoService;
 	@Autowired
 	private AccidentInfoService accidentInfoService;
-//	@Autowired
-//	private BaseDaoService base;
 
 	/**
 	 * 隐患数据查询
@@ -41,9 +39,9 @@ public class WisdomOfCiskController {
 	 * @return
 	 */
 	@RequestMapping("/getSafetyRisks")
-	public String getSafetyRisks(HttpServletRequest request, ModelMap modelMap,SafetyRiskInfo ss) {
-		Map<String, Object> params =GetRequestParams.GetParamsByRequestObj(request);
-		String[] ssa=(String[]) params.get("id");
+	public String getSafetyRisks(HttpServletRequest request, ModelMap modelMap, SafetyRiskInfo ss) {
+		Map<String, Object> params = GetRequestParams.GetParamsByRequestObj(request);
+		String[] ssa = (String[]) params.get("id");
 		String safetyRiskInfos = safetyRiskInfoService.safetyRiskInfoList(request);
 		return safetyRiskInfos;
 	}
