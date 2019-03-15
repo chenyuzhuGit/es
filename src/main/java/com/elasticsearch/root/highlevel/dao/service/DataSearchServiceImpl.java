@@ -1,13 +1,18 @@
 package com.elasticsearch.root.highlevel.dao.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.AbstractQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.CommonTermsQueryBuilder;
 import org.elasticsearch.index.query.ConstantScoreQueryBuilder;
-import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.index.query.FuzzyQueryBuilder;
 import org.elasticsearch.index.query.IdsQueryBuilder;
@@ -27,7 +32,15 @@ import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.index.query.TypeQueryBuilder;
 import org.elasticsearch.index.query.WildcardQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.sort.SortOrder;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.elasticsearch.root.enums.BoolQueryType;
 import com.elasticsearch.root.highlevel.dao.DataSearchService;
@@ -38,10 +51,16 @@ import com.elasticsearch.root.highlevel.dao.DataSearchService;
  * @author Administrator
  *
  */
+//设置每次请求都注入一个新的对象
+@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 @Component
 public class DataSearchServiceImpl extends BaseDaoServiceImpl implements DataSearchService {
-	private BoolQueryBuilder boolQueryBuilder = null;
-	private DisMaxQueryBuilder dixMaxQueryBuilder = null;
+	private BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
+	private Map<String, SortOrder> sortOrder = new LinkedHashMap<String, SortOrder>();
+	private Integer numberPage;
+	private Integer startIndex;
+	private List<Object> results;
+	private SearchResponse searchResponse;
 
 	@Override
 	public AbstractQueryBuilder<?> matchAllQuery(BoolQueryType type) throws Exception {
@@ -284,43 +303,85 @@ public class DataSearchServiceImpl extends BaseDaoServiceImpl implements DataSea
 		}
 	}
 
-	@Override
-	public AbstractQueryBuilder<?> disMaxQuery(List<QueryBuilder> queryBuilders, Float boost, Float tieBreaker)
-			throws Exception {
-		// TODO Auto-generated method stub
-		for (QueryBuilder queryBuilder : queryBuilders) {
-			dixMaxQueryBuilder.add(queryBuilder);
-		}
-		dixMaxQueryBuilder.boost(boost).tieBreaker(tieBreaker);
-		return dixMaxQueryBuilder;
-	}
-
 	public void setBoolQueryBuilder(BoolQueryBuilder boolQueryBuilder) {
 		this.boolQueryBuilder = boolQueryBuilder;
 	}
 
 	@Override
-	public BoolQueryBuilder getBoolQueryBuilder() {
+	public SearchResponse search(String index, String doc) throws Exception {
 		// TODO Auto-generated method stub
-		return boolQueryBuilder;
+		SearchSourceBuilder sourceBuilder = assemblySearchBuilder(false);
+		SearchRequest searchRequest = assemblySearchRequest(index, doc, sourceBuilder);
+		searchResponse = getClient().search(searchRequest, RequestOptions.DEFAULT);
+		return searchResponse;
 	}
 
 	@Override
-	public void setDixMaxQueryBuilder(DisMaxQueryBuilder dixMaxQueryBuilder) {
-		this.dixMaxQueryBuilder = dixMaxQueryBuilder;
+	public SearchResponse search(String index, String doc, Integer startIndex, Integer numberPage) throws Exception {
+		this.startIndex = startIndex != null && startIndex >= 0 ? startIndex : 0;
+		this.numberPage = numberPage != null && numberPage >= 0 ? numberPage : 1;
+
+		SearchSourceBuilder sourceBuilder = assemblySearchBuilder(true);
+		SearchRequest searchRequest = assemblySearchRequest(index, doc, sourceBuilder);
+		searchResponse = getClient().search(searchRequest, RequestOptions.DEFAULT);
+		return searchResponse;
 	}
 
 	@Override
-	public DisMaxQueryBuilder getDisMaxQueryBuilder() {
+	public List<?> getResults(Class<?> classType) throws Exception {
 		// TODO Auto-generated method stub
-		return dixMaxQueryBuilder;
+		results = new ArrayList<Object>();
+		SearchHits searchHits = searchResponse.getHits();
+		for (SearchHit hit : searchHits) {
+			if (classType.equals(Map.class)) {
+				Map<String, Object> source = hit.getSourceAsMap();
+				results.add(source);
+			} else {
+				String source = hit.getSourceAsString();
+				results.add(mapper.readValue(source, classType));
+			}
+
+		}
+		return results;
+	}
+
+	private SearchSourceBuilder assemblySearchBuilder(boolean isPage) {
+		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+		// 设置分页
+		if (isPage) {
+			sourceBuilder.from(startIndex);// 起始位置
+			sourceBuilder.size(numberPage);// 查询数量
+		}
+		// 设置排序
+		for (String key : sortOrder.keySet()) {
+			sourceBuilder.sort(key, sortOrder.get(key));
+		}
+		sourceBuilder.query(boolQueryBuilder);
+		return sourceBuilder;
+	}
+
+	private SearchRequest assemblySearchRequest(String index, String doc, SearchSourceBuilder sourceBuilder) {
+		SearchRequest searchRequest = new SearchRequest();
+		searchRequest.indices(index);
+		searchRequest.source(sourceBuilder);
+		searchRequest.types(doc);
+		return searchRequest;
 	}
 
 	@Override
-	public void cleanSearchConditions() {
+	public void setOrderBy(String field, SortOrder sort) {
 		// TODO Auto-generated method stub
-		boolQueryBuilder = null;
-		dixMaxQueryBuilder = null;
+		if (!StringUtils.isEmpty(field) && !StringUtils.isEmpty(sort)) {
+			sortOrder.put(field, sort);
+		}
+	}
+
+	@Override
+	public void setOrderBy(Map<String, SortOrder> sortOrder) {
+		// TODO Auto-generated method stub
+		if (sortOrder != null) {
+			this.sortOrder = sortOrder;
+		}
 	}
 
 }

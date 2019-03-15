@@ -3,6 +3,7 @@ package com.elasticsearch.root.highlevel.dao.service;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -15,13 +16,18 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
+import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.elasticsearch.root.highlevel.dao.IndexOperationService;
+import com.elasticsearch.root.serviceImpl.SafetyRiskInfoServiceImpl;
 
 /**
  * 索引操作接口
@@ -31,7 +37,7 @@ import com.elasticsearch.root.highlevel.dao.IndexOperationService;
  */
 @Component
 public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements IndexOperationService {
-
+	private Logger log = Loggers.getLogger(SafetyRiskInfoServiceImpl.class);
 	@Override
 	public CreateIndexResponse createIndex(String indexName, String type, XContentBuilder builder, String alias)
 			throws Exception {
@@ -46,6 +52,7 @@ public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements Ind
 		request.masterNodeTimeout("1m");
 		request.mapping(type, builder);
 		request.alias(new Alias(alias));
+		log.info("查询成功！请求参数: {}, 用时{}毫秒", request.mappings().toString(), 3423423L);
 		CreateIndexResponse response = getClient().indices().create(request, RequestOptions.DEFAULT);
 		return response;
 

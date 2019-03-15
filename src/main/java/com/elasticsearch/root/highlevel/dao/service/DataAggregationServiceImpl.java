@@ -1,7 +1,10 @@
 package com.elasticsearch.root.highlevel.dao.service;
 
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.elasticsearch.root.highlevel.dao.DataAggregationService;
 
@@ -12,6 +15,7 @@ import com.elasticsearch.root.highlevel.dao.DataAggregationService;
  *
  */
 @Component
+@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 public class DataAggregationServiceImpl extends BaseDaoServiceImpl implements DataAggregationService {
 
 	@Override

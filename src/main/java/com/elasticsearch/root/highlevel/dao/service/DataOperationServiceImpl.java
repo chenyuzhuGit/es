@@ -25,7 +25,10 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.elasticsearch.root.highlevel.dao.DataOperationService;
 
@@ -36,6 +39,7 @@ import com.elasticsearch.root.highlevel.dao.DataOperationService;
  *
  */
 @Component
+@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 public class DataOperationServiceImpl extends BaseDaoServiceImpl implements DataOperationService {
 	@Override
 	public IndexResponse addData(String index, String indexType, String documentId, Object documentJson,

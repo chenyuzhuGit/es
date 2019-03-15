@@ -1,6 +1,7 @@
 package com.elasticsearch.root;
 
 import java.util.List;
+import java.util.Map;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
@@ -11,7 +12,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.elasticsearch.root.config.DataBaseIndex;
+import com.elasticsearch.root.config.DataBaseType;
 import com.elasticsearch.root.entity.SafetyRiskInfo;
+import com.elasticsearch.root.highlevel.dao.DataSearchService;
 import com.elasticsearch.root.service.SafetyRiskInfoService;
 
 @RunWith(SpringRunner.class)
@@ -21,16 +25,34 @@ public class Tests {
 	private SafetyRiskInfoService service;
 	@Autowired
 	private ElasticsearchTemplate services;
+	@Autowired
+	private DataSearchService dataSearchService;
 
 	@Test
 	public void contextLoads() {
 		try {
-			createIndexMethods();
+			dataSearchTest();
+//			createIndexMethods();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
+	}
+
+	public void dataSearchTest() {
+		try {
+//			dataSearchService.matchQuery("asdj", "sdsdf", BoolQueryType.MUST);
+			dataSearchService.search(DataBaseIndex.SAFETY_RISK_INFO_INDEX, DataBaseType.DOC_TYPE);
+			List<Map<String, Object>>  ss=(List<Map<String, Object>>) dataSearchService.getResults(Map.class);
+			List<SafetyRiskInfo>  sss= (List<SafetyRiskInfo>) dataSearchService.getResults(SafetyRiskInfo.class);
+			System.out.println();
+//			dataSearchService.search();
+//			dataSearchService.search();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**

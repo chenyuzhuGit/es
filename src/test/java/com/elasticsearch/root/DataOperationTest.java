@@ -53,14 +53,19 @@ public class DataOperationTest {
 //		jsonMap.put("postDate", new Date());
 //		jsonMap.put("message", "2trying out Elasticsearch");
 		jsonMap.put("user", "2kimchy");
-		jsonMap.put("userMen.name", "chenyuzhu");
-		jsonMap.put("userMen.age", "20000");
-		jsonMap.put("userMen.sex", "男");
+//		jsonMap.put("userMen.name", "chenyuzhu");
+//		jsonMap.put("userMen.age", "20000");
+//		jsonMap.put("userMen.sex", "男");
 		jsonMap.put("postDate", new Date());
 		jsonMap.put("message", "2trying out Elasticsearch");
+		Map<String, Object> jsonMap2 = new HashMap<String, Object>();
+		jsonMap2.put("name", "chenyuzhu");
+		jsonMap2.put("age", "20000");
+		jsonMap2.put("sex", "男");
+		jsonMap.put("userMen", jsonMap2);
 		IndexResponse indexResponse;
 		try {
-			indexResponse = service.addData("chenyuzhu3", "doc", "1", jsonMap, null);
+			indexResponse = service.addData("chenyuzhu4", "doc", "3", jsonMap, null);
 			String currentIndex = indexResponse.getIndex();
 			String type = indexResponse.getType();
 			String id = indexResponse.getId();

@@ -30,6 +30,8 @@ import com.elasticsearch.root.config.DataBaseType;
 import com.elasticsearch.root.highlevel.dao.DataAggregationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.Cleanup;
+
 /**
  * 实体生成器
  * 
@@ -181,6 +183,7 @@ public class EntityGenerator {
 			dir.mkdirs();// mkdirs创建多级目录
 		}
 		File checkFile = new File(filePath + "/" + fileName + "." + fileType);
+		@Cleanup
 		FileWriter writer = null;
 		try {
 			// 二、检查目标文件是否存在，不存在则创建
@@ -195,6 +198,8 @@ public class EntityGenerator {
 			writer.append(System.getProperty("line.separator"));
 			writer.append("import java.io.Serializable;");
 			writer.append(System.getProperty("line.separator"));
+			writer.append("import lombok.*;");
+			writer.append(System.getProperty("line.separator"));
 			writer.append("import java.util.Date;");
 			writer.append(System.getProperty("line.separator"));
 			writer.append("import org.springframework.data.annotation.Id;");
@@ -206,8 +211,17 @@ public class EntityGenerator {
 			writer.append("import org.springframework.data.elasticsearch.annotations.Document;");
 			writer.append(System.getProperty("line.separator"));
 			writer.append(System.getProperty("line.separator"));
-			writer.append(System.getProperty("@SuppressWarnings(\"serial\")"));
+			writer.append("@JsonIgnoreProperties(ignoreUnknown = true)");
 			writer.append(System.getProperty("line.separator"));
+			writer.append("@SuppressWarnings(\"serial\")");
+			writer.append(System.getProperty("line.separator"));
+			
+			
+			writer.append("@Getter");
+			writer.append(System.getProperty("line.separator"));
+			writer.append("@Setter");
+			writer.append(System.getProperty("line.separator"));
+			
 			writer.append("@Document(indexName = \"" + index + "\", type = \"" + type
 					+ "\", indexStoreType = \"fs\", shards = 5, replicas = 1, refreshInterval = \"-1\")");
 			writer.append(System.getProperty("line.separator"));
@@ -221,14 +235,18 @@ public class EntityGenerator {
 			writer.append(System.getProperty("line.separator"));
 			writer.append("	private Integer pageIndex = 1;");
 			writer.append(System.getProperty("line.separator"));
+			writer.append(System.getProperty("line.separator"));
+			writer.append("	public Integer getStartIndex() {");
+			writer.append(System.getProperty("line.separator"));
+			writer.append("		return (pageIndex - 1) * pageSize;");
+			writer.append(System.getProperty("line.separator"));
+			writer.append("	}");
+			writer.append(System.getProperty("line.separator"));
 			writer.append("}");
 
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-		} finally {
-			if (null != writer)
-				writer.close();
 		}
 	}
 
@@ -252,7 +270,7 @@ public class EntityGenerator {
 			if (prefixRecord.equals("") || !prefixRecord.equals(prefix)) {
 //				list.add("	@JsonProperty(\"" + prefix + "\")");
 //				list.add("	@Field(type=FieldType.Nested)");
-				finalFieldType = "Map<String,Object>";
+				finalFieldType = "Map<String, Object>";
 				finalFieldName = prefix;
 				prefixRecord = prefix;
 			} else {
@@ -267,7 +285,7 @@ public class EntityGenerator {
 		sb.append("private");
 		sb.append("	");
 		sb.append(finalFieldType);
-		sb.append("	");
+		sb.append(" ");
 		sb.append(finalFieldName);
 		sb.append(";");
 		list.add(sb.toString());

@@ -59,6 +59,9 @@ public class IndexOperationTest {
 							{
 								builder.startObject("userMen");
 								{
+									{
+										builder.field("type", "nested");
+									}
 									builder.startObject("properties");
 									{
 
@@ -131,7 +134,7 @@ public class IndexOperationTest {
 		}
 		builder.endObject();
 		@SuppressWarnings("unused")
-		CreateIndexResponse response = service.createIndex("chenyuzhu3", type, builder, "测试");
+		CreateIndexResponse response = service.createIndex("chenyuzhu4", type, builder, "测试");
 	}
 
 	public boolean existsIndexMethods() throws Exception {

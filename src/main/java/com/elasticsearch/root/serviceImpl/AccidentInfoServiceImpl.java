@@ -32,7 +32,7 @@ import org.springframework.util.StringUtils;
 
 import com.elasticsearch.root.config.DataBaseIndex;
 import com.elasticsearch.root.config.DataBaseType;
-import com.elasticsearch.root.highlevel.dao.service.DataOperationServiceImpl;
+import com.elasticsearch.root.highlevel.dao.DataOperationService;
 import com.elasticsearch.root.service.AccidentInfoService;
 import com.elasticsearch.root.tools.DateDealUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ public class AccidentInfoServiceImpl implements AccidentInfoService {
 
 	private Logger log = Loggers.getLogger(AccidentInfoServiceImpl.class);
 	@Autowired
-	private DataOperationServiceImpl service;
+	private DataOperationService service;
 
 	/**
 	 * 事故查询

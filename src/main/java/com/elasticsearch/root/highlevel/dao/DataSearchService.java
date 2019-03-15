@@ -2,12 +2,14 @@ package com.elasticsearch.root.highlevel.dao;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.AbstractQueryBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.SimpleQueryStringFlag;
+import org.elasticsearch.search.sort.SortOrder;
 
 import com.elasticsearch.root.enums.BoolQueryType;
 
@@ -196,40 +198,46 @@ public interface DataSearchService extends BaseDaoService {
 	void boolQuery(AbstractQueryBuilder<?> queryBuilder, BoolQueryType type) throws Exception;
 
 	/**
-	 * 一个接受多个查询的查询，并返回与任何查询子句匹配的任何文档。虽然bool查询组合了所有匹配查询的分数，但dis_max查询使用单个最佳匹配查询子句的分数。
-	 * 一个查询，它生成由其子查询生成的文档的并集，并为每个文档评分由任何子查询生成的该文档的最大分数，以及任何其他匹配子查询的平局增量。
-	 * 当在具有不同增强因子的多个字段中搜索单词时，这非常有用（因此不能将字段等效地组合到单个搜索字段中）。我们希望主要分数是与最高提升相关联的分数，而不是字段分数的总和（如布尔查询所给出的）。如果查询是“albino
-	 * elephant”，则这确保匹配一个字段的“albino”和匹配另一个的“elephant”获得比匹配两个字段的“albino”更高的分数。要获得此结果，请同时使用Boolean
-	 * Query和DisjunctionMax
-	 * Query：对于每个术语，DisjunctionMaxQuery在每个字段中搜索它，而将这些DisjunctionMaxQuery的集合组合成BooleanQuery。
+	 * 设置boolQueryBuilder
 	 * 
-	 * @throws Exception
+	 * @param boolQueryBuilder
 	 */
-	AbstractQueryBuilder<?> disMaxQuery(List<QueryBuilder> queryBuilders, Float boost, Float tieBreaker)
-			throws Exception;
-
-	/**
-	 * 获取bollQuery对象
-	 * 
-	 * @return
-	 */
-	BoolQueryBuilder getBoolQueryBuilder();
-
 	void setBoolQueryBuilder(BoolQueryBuilder boolQueryBuilder);
 
 	/**
-	 * 获取DisMaxQueryBuilder对象
+	 * 查询
 	 * 
 	 * @return
+	 * @throws Exception
 	 */
-	DisMaxQueryBuilder getDisMaxQueryBuilder();
-
-	void setDixMaxQueryBuilder(DisMaxQueryBuilder dixMaxQueryBuilder);
+	SearchResponse search(String index, String doc) throws Exception;
 
 	/**
-	 * 清空查询条件
+	 * 分页查询
 	 * 
+	 * @param startIndex 开始位置
+	 * @param numberPage 每页的数量
 	 * @return
+	 * @throws Exception
 	 */
-	void cleanSearchConditions();
+	SearchResponse search(String index, String doc, Integer startIndex, Integer numberPage) throws Exception;
+
+	/**
+	 * 设置排序字段
+	 * 
+	 * @param field
+	 * @param sort
+	 */
+	void setOrderBy(String field, SortOrder sort);
+
+	void setOrderBy(Map<String, SortOrder> sortOrder);
+
+	/**
+	 * 根据class类型将查询结果集转换为list集合
+	 * 
+	 * @param classType 主要为实体类型和Map类型
+	 * @return
+	 * @throws Exception
+	 */
+	List<?> getResults(Class<?> classType) throws Exception;
 }

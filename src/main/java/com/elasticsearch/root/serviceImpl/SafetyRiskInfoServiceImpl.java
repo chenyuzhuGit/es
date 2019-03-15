@@ -33,7 +33,9 @@ import org.springframework.util.StringUtils;
 import com.elasticsearch.root.config.DataBaseIndex;
 import com.elasticsearch.root.config.DataBaseType;
 import com.elasticsearch.root.entity.SafetyRiskInfo;
-import com.elasticsearch.root.highlevel.dao.service.DataOperationServiceImpl;
+import com.elasticsearch.root.enums.BoolQueryType;
+import com.elasticsearch.root.highlevel.dao.DataOperationService;
+import com.elasticsearch.root.highlevel.dao.DataSearchService;
 import com.elasticsearch.root.repository.dao.SafetyRiskInfoRepository;
 import com.elasticsearch.root.service.SafetyRiskInfoService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,9 +51,11 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 
 	private Logger log = Loggers.getLogger(SafetyRiskInfoServiceImpl.class);
 	@Autowired
-	private DataOperationServiceImpl service;
+	private DataOperationService service;
 	@Autowired
-	SafetyRiskInfoRepository safetyRiskInfoRepository; // ES 操作类
+	private SafetyRiskInfoRepository safetyRiskInfoRepository; // ES 操作类
+	@Autowired
+	private DataSearchService dataSearchService; // ES 操作类
 
 	@Override
 	public List<SafetyRiskInfo> searchSafetyRiskInfo(Integer pageNumber, Integer pageSize, String searchContent) {
@@ -65,6 +69,7 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 	 */
 	@Override
 	public String safetyRiskInfoList(HttpServletRequest request) {
+
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -160,6 +165,11 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 		searchRequest.types(DataBaseType.DOC_TYPE);
 
 		try {
+			if (!StringUtils.isEmpty(hazardCategoryLevelTwo) && !"null".equals(hazardCategoryLevelTwo))
+				dataSearchService.matchQuery("accidentType", hazardCategoryLevelTwo, BoolQueryType.MUST);
+			if (!StringUtils.isEmpty(hazardCategoryLevelOne) && !"null".equals(hazardCategoryLevelOne))
+				dataSearchService.matchQuery("accidentType1111", hazardCategoryLevelOne, BoolQueryType.MUST);
+			dataSearchService.search(DataBaseIndex.SAFETY_RISK_INFO_INDEX,DataBaseType.DOC_TYPE);
 			RestHighLevelClient client = service.getClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 //			service.cleanSearchConditions();
@@ -195,6 +205,9 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 			return mapper.writeValueAsString(resultMap);
 		} catch (IOException e) {
 			log.error("查询失败！原因: {}", e.getMessage(), e);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return "{'data':'','status':'','total':0}";

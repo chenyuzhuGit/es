@@ -6,7 +6,6 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.stereotype.Component;
 
 import com.elasticsearch.root.config.DataBaseIndex;
@@ -22,26 +21,25 @@ public class SafetyRiskInfoRepositoryImpl implements Test {
 	private DataSearchService service;
 
 	@Override
-	public void test() {
+	public SearchResponse test() {
 		// TODO Auto-generated method stub
+		SearchResponse searchResponse = null;
 		try {
 			System.out.println("查询开始");
 			service.setBoolQueryBuilder(QueryBuilders.boolQuery());
 			service.matchAllQuery(BoolQueryType.MUST);
-			service.getBoolQueryBuilder();
 			SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 			SearchRequest searchRequest = new SearchRequest();
 			searchRequest.indices(DataBaseIndex.ACCIDENT_CASE_INDEX);
 			searchRequest.source(sourceBuilder);
 			searchRequest.types(DataBaseType.DOC_TYPE);
-
-			SearchResponse searchResponse =service.getClient().search(searchRequest, RequestOptions.DEFAULT);
+			searchResponse = service.getClient().search(searchRequest, RequestOptions.DEFAULT);
 			System.out.println("查询结束");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("222222222");
+		return searchResponse;
 	}
 
 }
