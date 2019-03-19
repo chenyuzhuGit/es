@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.Logger;
@@ -21,12 +22,12 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -34,11 +35,10 @@ import com.elasticsearch.root.config.DataBaseIndex;
 import com.elasticsearch.root.config.DataBaseType;
 import com.elasticsearch.root.entity.SafetyRiskInfo;
 import com.elasticsearch.root.enums.BoolQueryType;
+import com.elasticsearch.root.highlevel.dao.BaseDaoService;
 import com.elasticsearch.root.highlevel.dao.DataOperationService;
-import com.elasticsearch.root.highlevel.dao.DataSearchService;
-import com.elasticsearch.root.repository.dao.SafetyRiskInfoRepository;
+import com.elasticsearch.root.highlevel.dao.DataSearchCombinerService;
 import com.elasticsearch.root.service.SafetyRiskInfoService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 隐患查询
@@ -52,15 +52,21 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 	private Logger log = Loggers.getLogger(SafetyRiskInfoServiceImpl.class);
 	@Autowired
 	private DataOperationService service;
-	@Autowired
-	private SafetyRiskInfoRepository safetyRiskInfoRepository; // ES 操作类
-	@Autowired
-	private DataSearchService dataSearchService; // ES 操作类
+//	@Autowired
+//	private SafetyRiskInfoRepository safetyRiskInfoRepository; // ES 操作类
+//	@Autowired
+	@Resource(name = "dataSearchCombinerServiceImpl")
+	private DataSearchCombinerService dataSearchService; // ES 操作类
 
 	@Override
 	public List<SafetyRiskInfo> searchSafetyRiskInfo(Integer pageNumber, Integer pageSize, String searchContent) {
-		safetyRiskInfoRepository.test();
-		Page<SafetyRiskInfo> safetyRiskInfoPage = safetyRiskInfoRepository.findAll(PageRequest.of(0, 10));
+		try {
+//			safetyRiskInfoRepository.test();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Page<SafetyRiskInfo> safetyRiskInfoPage = null;//safetyRiskInfoRepository.findAll(PageRequest.of(0, 10));
 		return safetyRiskInfoPage.getContent();
 	}
 
@@ -72,7 +78,6 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 
 		SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 		Map<String, Object> resultMap = new HashMap<String, Object>();
-		ObjectMapper mapper = new ObjectMapper();
 		String hiddenPlaceProvince = request.getParameter("hiddenPlaceProvince");// 隐患地点---省
 		String hiddenPlaceCity = request.getParameter("hiddenPlaceCity");// 隐患地点---市
 		String hiddenPlaceArea = request.getParameter("hiddenPlaceArea");// 隐患地点---区
@@ -158,7 +163,7 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 		}
 
 		sourceBuilder.query(boolQueryBuilder);
-
+		sourceBuilder.aggregation(AggregationBuilders.avg("sd"));
 		SearchRequest searchRequest = new SearchRequest();
 		searchRequest.indices(DataBaseIndex.SAFETY_RISK_INFO_INDEX);
 		searchRequest.source(sourceBuilder);
@@ -169,7 +174,7 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 				dataSearchService.matchQuery("accidentType", hazardCategoryLevelTwo, BoolQueryType.MUST);
 			if (!StringUtils.isEmpty(hazardCategoryLevelOne) && !"null".equals(hazardCategoryLevelOne))
 				dataSearchService.matchQuery("accidentType1111", hazardCategoryLevelOne, BoolQueryType.MUST);
-			dataSearchService.search(DataBaseIndex.SAFETY_RISK_INFO_INDEX,DataBaseType.DOC_TYPE);
+			dataSearchService.search(DataBaseIndex.SAFETY_RISK_INFO_INDEX, DataBaseType.DOC_TYPE);
 			RestHighLevelClient client = service.getClient();
 			SearchResponse searchResponse = client.search(searchRequest, RequestOptions.DEFAULT);
 //			service.cleanSearchConditions();
@@ -178,14 +183,13 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 				resultMap.put("data", "");
 				resultMap.put("status", "0");
 				resultMap.put("total", 0);
-				return mapper.writeValueAsString(resultMap);
+				return BaseDaoService.mapper.writeValueAsString(resultMap);
 			}
 			SearchHits searchHits = searchResponse.getHits();
 			List<Map<String, Object>> results = new ArrayList<Map<String, Object>>();
 			for (SearchHit hit : searchHits.getHits()) {
 				Map<String, Object> source = hit.getSourceAsMap();
 				results.add(source);
-
 			}
 			/*
 			 * json转换实体 List<CompanyInfo> list = new ArrayList<>(); SearchHits searchHits =
@@ -202,7 +206,7 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 			resultMap.put("data", results);
 			resultMap.put("status", "1");
 			resultMap.put("total", totalHits);
-			return mapper.writeValueAsString(resultMap);
+			return BaseDaoService.mapper.writeValueAsString(resultMap);
 		} catch (IOException e) {
 			log.error("查询失败！原因: {}", e.getMessage(), e);
 		} catch (Exception e) {
@@ -242,14 +246,13 @@ public class SafetyRiskInfoServiceImpl implements SafetyRiskInfoService {
 				results.add(source);
 
 			}
-			ObjectMapper mapper = new ObjectMapper();
 
 			TimeValue took = searchResponse.getTook();
 			log.info("查询成功！请求参数: {}, 用时{}毫秒", searchRequest.source().toString(), took.millis());
 			resultMap.put("data", results);
 			resultMap.put("status", "1");
 			resultMap.put("total", "1");
-			return mapper.writeValueAsString(resultMap);
+			return BaseDaoService.mapper.writeValueAsString(resultMap);
 		} catch (IOException e) {
 			log.error("查询失败！原因: {}", e.getMessage(), e);
 		}

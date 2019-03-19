@@ -28,7 +28,7 @@ public interface IndexOperationService extends BaseDaoService {
 	/**
 	 * 校验索引是否存在
 	 * 
-	 * @param indexName
+	 * @param indexName 索引名称
 	 * @throws Exception
 	 */
 	boolean existsIndex(String indexName) throws Exception;

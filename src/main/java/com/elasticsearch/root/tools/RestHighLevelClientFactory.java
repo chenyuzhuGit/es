@@ -7,7 +7,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import com.elasticsearch.root.config.DataBaseConnectionInfo;
 
 /**
- * 返回单例的client
+ * 返回单例的高级client
  * 
  * @author Administrator
  *

@@ -14,7 +14,7 @@ public interface BaseDaoService {
 	/**
 	 * json字符串、对象转换工具
 	 */
-	final ObjectMapper mapper = new ObjectMapper();
+	ObjectMapper mapper = new ObjectMapper();
 
 	/**
 	 * 获取数据库操作对象

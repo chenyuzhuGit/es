@@ -1,10 +1,8 @@
 package com.elasticsearch.root.highlevel.dao.service;
 
+import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.elasticsearch.root.highlevel.dao.DataAggregationService;
 
@@ -15,43 +13,76 @@ import com.elasticsearch.root.highlevel.dao.DataAggregationService;
  *
  */
 @Component
-@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 public class DataAggregationServiceImpl extends BaseDaoServiceImpl implements DataAggregationService {
+	private final String avgPrefix = "avg_";
+	private final String minPrefix = "min_";
+	private final String maxPrefix = "max_";
+	private final String countPrefix = "count_";
+	private final String sumPrefix = "sum_";
+	private final String statsPrefix = "stats_";
+	private final String cardinalityPrefix = "cardinality_";
+	private final String termsPrefix = "terms_";
+	private final String dateHistogramPrefix = "dateHistogram_";
+	private final String topHitsPrefix = "topHits_";
 
 	@Override
-	public void getCount(String field) {
+	public AggregationBuilder getCount(String field) {
 		// TODO Auto-generated method stub
-		AggregationBuilders.avg(field);
+		return AggregationBuilders.count(countPrefix + field).field(field);
 	}
 
 	@Override
-	public void getMax(String field) {
+	public AggregationBuilder getMax(String field) {
 		// TODO Auto-generated method stub
-		AggregationBuilders.max(field);
+		return AggregationBuilders.max(maxPrefix + field).field(field);
 	}
 
 	@Override
-	public void getMin(String field) {
+	public AggregationBuilder getMin(String field) {
 		// TODO Auto-generated method stub
-
+		return AggregationBuilders.min(minPrefix + field).field(field);
 	}
 
 	@Override
-	public void getAvg(String field) {
+	public AggregationBuilder getAvg(String field) {
 		// TODO Auto-generated method stub
-
+		return AggregationBuilders.avg(avgPrefix + field).field(field);
 	}
 
 	@Override
-	public void getSum(String field) {
+	public AggregationBuilder getSum(String field) {
 		// TODO Auto-generated method stub
-
+		return AggregationBuilders.sum(sumPrefix + field).field(field);
 	}
 
 	@Override
-	public void getStats(String field) {
+	public AggregationBuilder getStats(String field) {
 		// TODO Auto-generated method stub
+		return AggregationBuilders.stats(statsPrefix + field).field(field);
+	}
 
+	@Override
+	public AggregationBuilder getCardinality(String field) throws Exception {
+		// TODO Auto-generated method stub
+		return AggregationBuilders.cardinality(cardinalityPrefix + field).field(field);
+	}
+
+	@Override
+	public AggregationBuilder terms(String field) throws Exception {
+		// TODO Auto-generated method stub
+		return AggregationBuilders.terms(termsPrefix + field).field(field);
+	}
+
+	@Override
+	public AggregationBuilder getDateHistogram(String field) throws Exception {
+		// TODO Auto-generated method stub
+		return AggregationBuilders.dateHistogram(dateHistogramPrefix + field).field(field);
+	}
+
+	@Override
+	public AggregationBuilder topHits(String field) throws Exception {
+		// TODO Auto-generated method stub
+		return AggregationBuilders.topHits(topHitsPrefix + field);
 	}
 
 }

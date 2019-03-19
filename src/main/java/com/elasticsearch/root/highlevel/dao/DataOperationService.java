@@ -28,7 +28,7 @@ public interface DataOperationService extends BaseDaoService {
 	 * @return
 	 * @throws Exception
 	 */
-	IndexResponse addData(String index, String indexType, String documentId, Object documentJson,
+	IndexResponse addData(String index, String indexType, String documentId, Object document,
 			ActionListener<IndexResponse> listener) throws Exception;
 
 	/**

@@ -25,10 +25,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.search.fetch.subphase.FetchSourceContext;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.elasticsearch.root.highlevel.dao.DataOperationService;
 
@@ -39,30 +36,26 @@ import com.elasticsearch.root.highlevel.dao.DataOperationService;
  *
  */
 @Component
-@Scope(value = WebApplicationContext.SCOPE_REQUEST, proxyMode = ScopedProxyMode.INTERFACES)
 public class DataOperationServiceImpl extends BaseDaoServiceImpl implements DataOperationService {
 	@Override
-	public IndexResponse addData(String index, String indexType, String documentId, Object documentJson,
+	public IndexResponse addData(String index, String indexType, String documentId, Object document,
 			ActionListener<IndexResponse> listener) throws Exception {
 		// TODO Auto-generated method stub
 		// 参数：索引、类型、记录id
 		IndexRequest request = new IndexRequest(index, indexType, documentId);
-//		request.routing("routing");
-//		request.parent("parent");
 		request.timeout(TimeValue.timeValueSeconds(1));
 		request.setRefreshPolicy(WriteRequest.RefreshPolicy.WAIT_UNTIL);
 		// 判断新增操作的类型，索引操作有两种，一种是INDEX，当要索引的文档id已经存在时，是更新原来文档。一种是CREATE，当索引文档id存在时，会抛出该文档已存在的错误。
 		request.opType(DocWriteRequest.OpType.CREATE);
-//		request.setPipeline("pipeline");
-		if (documentJson instanceof String) {
+		if (document instanceof String) {
 			// 需要制定数据包装类型
-			request.source((String) documentJson, XContentType.JSON);
-		} else if (documentJson instanceof XContentBuilder) {
+			request.source((String) document, XContentType.JSON);
+		} else if (document instanceof XContentBuilder) {
 			// 作为XContentBuilder对象提供的文档源，Elasticsearch内置帮助程序以生成JSON内容
-			request.source((XContentBuilder) documentJson);
-		} else if (documentJson instanceof Map<?, ?>) {
+			request.source((XContentBuilder) document);
+		} else if (document instanceof Map<?, ?>) {
 			// 提供的文档源Map自动转换为JSON格式
-			request.source((Map<?, ?>) documentJson);
+			request.source((Map<?, ?>) document);
 		}
 		IndexResponse indexResponse = null;
 		if (listener == null) {
@@ -177,7 +170,6 @@ public class DataOperationServiceImpl extends BaseDaoServiceImpl implements Data
 	public Boolean combinationBulkProcessor(BulkProcessor.Listener listener, DocWriteRequest<?>... request)
 			throws Exception {
 		// TODO Auto-generated method stub
-
 		// 这里使用的java8lambda表达式，创建BiConsumer对象，并实现BiConsumer的接口
 		BiConsumer<BulkRequest, ActionListener<BulkResponse>> bulkConsumer = (bulkRequest, bulkListener) -> getClient()
 				.bulkAsync(bulkRequest, RequestOptions.DEFAULT, bulkListener);

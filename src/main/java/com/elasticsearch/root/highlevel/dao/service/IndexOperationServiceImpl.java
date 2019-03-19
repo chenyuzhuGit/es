@@ -3,7 +3,6 @@ package com.elasticsearch.root.highlevel.dao.service;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
 import org.elasticsearch.action.admin.indices.alias.Alias;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
@@ -16,18 +15,13 @@ import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.collect.ImmutableOpenMap;
-import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.springframework.context.annotation.Scope;
-import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.WebApplicationContext;
-
+import org.springframework.util.StringUtils;
 import com.carrotsearch.hppc.cursors.ObjectObjectCursor;
 import com.elasticsearch.root.highlevel.dao.IndexOperationService;
-import com.elasticsearch.root.serviceImpl.SafetyRiskInfoServiceImpl;
 
 /**
  * 索引操作接口
@@ -37,7 +31,7 @@ import com.elasticsearch.root.serviceImpl.SafetyRiskInfoServiceImpl;
  */
 @Component
 public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements IndexOperationService {
-	private Logger log = Loggers.getLogger(SafetyRiskInfoServiceImpl.class);
+
 	@Override
 	public CreateIndexResponse createIndex(String indexName, String type, XContentBuilder builder, String alias)
 			throws Exception {
@@ -51,8 +45,11 @@ public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements Ind
 		request.masterNodeTimeout(TimeValue.timeValueMinutes(1));
 		request.masterNodeTimeout("1m");
 		request.mapping(type, builder);
-		request.alias(new Alias(alias));
-		log.info("查询成功！请求参数: {}, 用时{}毫秒", request.mappings().toString(), 3423423L);
+		// 设置索引别名
+		if (!StringUtils.isEmpty(alias)) {
+			request.alias(new Alias(alias));
+		}
+		System.out.println(request.mappings().toString());
 		CreateIndexResponse response = getClient().indices().create(request, RequestOptions.DEFAULT);
 		return response;
 
@@ -66,25 +63,8 @@ public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements Ind
 		request.local(false);
 		request.humanReadable(true);
 		request.includeDefaults(false);
-//		request.indicesOptions(IndicesOptions.LENIENT_EXPAND_OPEN);
 		boolean exists = getClient().indices().exists(request, RequestOptions.DEFAULT);
 		return exists;
-		// 以下为异步校验的方式
-//		ActionListener<Boolean> listener = new ActionListener<Boolean>() {
-//			@Override
-//			public void onResponse(Boolean exists) {
-//				// 执行成功完成时调用。
-//				System.out.println("执行成功");
-//			}
-//
-//			@Override
-//			public void onFailure(Exception e) {
-//				// 当整体GetIndexRequest失败时调用
-//				System.out.println("执行失败");
-//			}
-//		};
-//		getClient().indices().existsAsync(request, RequestOptions.DEFAULT, listener);
-//		return exists;
 	}
 
 	@Override
@@ -114,10 +94,10 @@ public class IndexOperationServiceImpl extends BaseDaoServiceImpl implements Ind
 		// 解析索引信息
 		for (int i = 0; i < indexNames.length; i++) {
 			String indexName = indexNames[i];
-			System.out.println(indexName + ":索引信息");
+			System.out.println("索引信息:" + indexName);
 			ImmutableOpenMap<String, MappingMetaData> indexMappings = getIndexResponse.getMappings().get(indexName);
 			for (ObjectObjectCursor<String, MappingMetaData> objectObjectCursor : indexMappings) {
-				System.out.println(indexName + ":" + objectObjectCursor.key + "类型：");
+				System.out.println("类型:" + objectObjectCursor.key);
 				Map<String, Object> indexTypeMappings = indexMappings.get(objectObjectCursor.key).getSourceAsMap();
 				List<AliasMetaData> indexAliases = getIndexResponse.getAliases().get(indexName);
 				String numberOfShardsString = getIndexResponse.getSetting(indexName, "index.number_of_shards");

@@ -8,7 +8,7 @@ import com.elasticsearch.root.highlevel.dao.BaseDaoService;
 import com.elasticsearch.root.tools.RestHighLevelClientFactory;
 
 /**
- * dao基类
+ * 高级api,dao基类
  * 
  * @author Administrator
  *
